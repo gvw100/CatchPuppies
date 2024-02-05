@@ -9,7 +9,9 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import model.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Random;
 
 // represents the terminal/ui of the game
 public class TerminalGame {
@@ -116,9 +118,12 @@ public class TerminalGame {
     //             O
     // draw head |=|=|
     private void drawHead(TextColor c, int px, int py) {
-        Puppy puppy = puppyCaller.getCurrentPuppy();
-
-        if (puppy != null) {
+        // Selects random puppy from list of selected puppies.
+        Random random = new Random();
+        ArrayList<Puppy> puppies = puppyCaller.getSelectedPuppies();
+        if (puppies.size() != 0) {
+            int index = random.nextInt(puppies.size());
+            Puppy puppy = puppies.get(index);
             drawString("( ", c, px, py - 3);
             drawPuppyWord(puppy, TextColor.ANSI.MAGENTA, px + 2 + (puppy.getName().length() / 2), py - 5);
             drawString("! )", c, px + 2 + puppy.getName().length(), py - 3);
@@ -150,7 +155,7 @@ public class TerminalGame {
         int ex = puppy.getX();
         int ey = puppy.getY();
 
-        if (puppy == puppyCaller.getCurrentPuppy()) {
+        if (puppyCaller.getSelectedPuppies() != null && puppyCaller.getSelectedPuppies().contains(puppy)) {
             c = TextColor.ANSI.MAGENTA;
         }
 

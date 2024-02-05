@@ -1,5 +1,6 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,52 +28,57 @@ import java.util.List;
  * helper methods might be useful.
  */
 public class PuppyCaller {
-    private Puppy currentPuppy;
+    private ArrayList<Puppy> selectedPuppies = new ArrayList<>();
 
     // EFFECTS: creates an instance of this class with no current puppy selected.
     public PuppyCaller() {
     }
 
     // EFFECTS: returns the current selected puppy, null if none is selected
-    public Puppy getCurrentPuppy() {
-        return currentPuppy;
+    public ArrayList<Puppy> getSelectedPuppies() {
+        return selectedPuppies;
     }
 
     // REQUIRES: !currentPuppy.hasBeenCalled()
     // MODIFIES: this
     // EFFECTS: sets the current puppy to the provided puppy
-    public void setCurrentPuppy(Puppy currentPuppy) {
-        this.currentPuppy = currentPuppy;
+    public void setSelectedPuppies(ArrayList<Puppy> selectedPuppies) {
+        this.selectedPuppies = selectedPuppies;
     }
 
-    // REQUIRES: getCurrentPuppy() != null and !getCurrentPuppy().hasBeenCalled()
+    // REQUIRES: getCurrentPuppies() != null and all puppies have not been called
     // MODIFIES: this
-    // EFFECTS: Types one character of the current puppy's name if c is the next character to be typed for that puppy
-    //          If the puppy has been called after typing that character, current puppy will be null
-    //          Returns whether progress was made on calling the puppy
-    public boolean typeNameForCurrentPuppy(char c) {
-        if (c == currentPuppy.getNextChar()) {
-            currentPuppy.typeName();
-            if (currentPuppy.hasBeenCalled()) {
-                currentPuppy = null;
+    // EFFECTS: Types name for each currentPuppy in list, returns whether progress was made on any of the puppies.
+    public boolean typeNameForCurrentPuppies(char c) {
+        boolean isProgress = false;
+        selectedPuppies.removeIf(puppy -> c != puppy.getNextChar());
+        for (int i = 0; i < selectedPuppies.size(); i++) {
+            Puppy selectedPuppy = selectedPuppies.get(i);
+            selectedPuppy.typeName();
+            if (selectedPuppy.hasBeenCalled()) {
+                selectedPuppies.clear();
             }
-            return true;
-        } else {
-            currentPuppy.resetProgress();
-            return false;
         }
+        return isProgress;
     }
 
     // REQUIRES: currentPuppies.size() > 0
     // EFFECTS: returns any puppy in the list whose next character is c
     //          returns null if none was found
-    public Puppy findPuppy(List<Puppy> currentPuppies, char c) {
+    public ArrayList<Puppy> findPuppies(List<Puppy> currentPuppies, char c) {
+        boolean isFound = false;
+        ArrayList<Puppy> puppies = new ArrayList<>();
         for (Puppy puppy : currentPuppies) {
             if (c == puppy.getNextChar()) {
-                return puppy;
+                puppies.add(puppy);
+                isFound = true;
             }
         }
-        return null;
+        if (isFound) {
+            return puppies;
+        } else {
+            return null;
+        }
     }
 
     // REQUIRES: currentPuppies.size() > 0 AND for all puppies in the list, puppy has not been called
@@ -86,12 +92,13 @@ public class PuppyCaller {
     //              Set this puppy as the current and if one was found, call it
     //              Return whether progress was made on calling the puppy
     public boolean handleInput(List<Puppy> currentPuppies, char c) {
-        if (currentPuppy != null) {
-            return typeNameForCurrentPuppy(c);
+        if (selectedPuppies.size() != 0) {
+            return typeNameForCurrentPuppies(c);
         } else {
-            currentPuppy = findPuppy(currentPuppies, c);
-            if (currentPuppy != null) {
-                return typeNameForCurrentPuppy(c);
+            ArrayList<Puppy> newPuppies = findPuppies(currentPuppies, c);
+            if (newPuppies != null) {
+                selectedPuppies.addAll(newPuppies);
+                return typeNameForCurrentPuppies(c);
             } else {
                 return false;
             }

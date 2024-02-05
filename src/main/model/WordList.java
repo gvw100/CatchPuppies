@@ -22,18 +22,19 @@ public class WordList {
     // REQUIRES: provided word count / maxDifficulty > 10 * count
     //           (in other words, there are sufficiently many words to choose from to create the set)
     // EFFECTS: creates a subset of count words from the total set by:
-    //          by dividing the total set into fractions (maxDifficulty fractions)
-    //          and using the difficulty'th subset as the word list to draw from
-    //          then, picks count random words from the set.
+    //          drawing any word from the bottom difficulty / maxDifficulty portion of words.
     public Set<String> generateWordSet(int count, int difficulty, int maxDifficulty) {
         Set<String> generatedWords = new HashSet<>();
         int wordMaxIndex = (sortedWords.size() - 1) / maxDifficulty;
-        int minIndex = difficulty == 0 ? 0 : wordMaxIndex * (difficulty - 1);
+        wordMaxIndex *= difficulty;
 
         // there should be more safeguards here against an infinite recursion, but whatever for now...
+        if (count > sortedWords.size()) {
+            count = sortedWords.size();
+        }
         while (generatedWords.size() < count) {
             int randomIndex = random.nextInt(wordMaxIndex);
-            String word = sortedWords.get(minIndex + randomIndex);
+            String word = sortedWords.get(randomIndex);
 
             generatedWords.add(word);
         }

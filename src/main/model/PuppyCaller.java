@@ -58,6 +58,7 @@ public class PuppyCaller {
             }
             return true;
         } else {
+            currentPuppy.resetProgress();
             return false;
         }
     }

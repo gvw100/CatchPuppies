@@ -51,11 +51,23 @@ public class PuppyCaller {
     // EFFECTS: Types name for each currentPuppy in list, returns whether progress was made on any of the puppies.
     public boolean typeNameForCurrentPuppies(char c) {
         boolean isProgress = false;
-        selectedPuppies.removeIf(puppy -> c != puppy.getNextChar());
         for (int i = 0; i < selectedPuppies.size(); i++) {
+            Puppy puppy = selectedPuppies.get(i);
+            if (c != puppy.getNextChar()) {
+                puppy.resetProgress();
+                selectedPuppies.remove(puppy);
+            }
+        }
+        for (int i = 0; i < selectedPuppies.size(); i++) {
+            isProgress = true;
             Puppy selectedPuppy = selectedPuppies.get(i);
             selectedPuppy.typeName();
             if (selectedPuppy.hasBeenCalled()) {
+                for (Puppy puppy : selectedPuppies) {
+                    if (!puppy.hasBeenCalled()) {
+                        puppy.resetProgress();
+                    }
+                }
                 selectedPuppies.clear();
             }
         }
